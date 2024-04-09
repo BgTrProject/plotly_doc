@@ -1,9 +1,14 @@
+
+# Dockerfile
 FROM python:3.10
-LABEL authors="bilgi"
-ENV PYTHONUNBUFFERED=1
-WORKDIR /plotly_doc
-COPY requirements.txt .
-RUN pip3 install -r requirements.txt
-COPY . .
-EXPOSE 8222
-CMD ["python","manage.py","runserver"]
+ENV PYTHONUNBUFFERED 1
+
+#RUN adduser --disabled-password --gecos '' django
+ENV PATH=${PATH}:/plotly_doc/home/.local/bin
+#USER django
+WORKDIR /plotly_doc/home/
+COPY ./chromedriver .local/bin
+COPY ./requirements.txt .
+RUN pip install -r ./requirements.txt
+
+CMD ["python","./manage.py", "runserver", "0.0.0.0:8222"]
