@@ -1,6 +1,7 @@
 
 ###END
 #####
+import typing as t
 import io
 import re
 import json
@@ -18,6 +19,7 @@ import numpy as np
 from django_plotly_dash import DjangoDash
 import os
 import time
+from selenium.webdriver import ChromeOptions, Remote
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
@@ -30,11 +32,21 @@ import dash_mantine_components as dmc
 import os
 import zipfile
 from zipfile import ZipFile
-import shutil
+# import shutil
 # from dash_extensions.snippets import send_bytes
 from dash_extensions import *
 from dash import *
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
+import time
 
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver import ChromeOptions, Remote
+
+# The Docker container running Selenium
 
 
 app = DjangoDash('profplotly',external_stylesheets=[
@@ -56,7 +68,7 @@ html.Br(),
                                     id="fetch-input-email",
                                     type="text",
                                     placeholder="email : i.e. xyz@xyz.com",
-                                    # value="asuerdem@bilgi.edu.tr"
+                                   
                                 ),
                                 html.Br(),
 html.Br(),
@@ -64,7 +76,7 @@ html.Br(),
                                     id="fetch-input-password",
                                     type="text",
                                     placeholder="password : i.e. qwerty123",
-                                    # value="Deneme1234!"
+                                    
                                 ),
                                 html.Br(),
 html.Br(),
@@ -72,7 +84,7 @@ html.Br(),
                                     id="fetch-input-keyword",
                                     type="text",
                                     placeholder="search key : i.e. ZA7691,ZA7782",
-                                    # value="ZA7691"
+                                    value="ZA7782,ZA7691"
 # value="ZA7691,ZA7782"
                                 ),
 html.Br(),
@@ -80,10 +92,28 @@ html.Br(),
 #                                 dcc.Download(id="download-image"),
 html.Br(),
 
+################3
 
+#bura
 
+ #############3
 
+                                # html.Button(
+                                #     "Search", id="fetch-btn", n_clicks=0
+                                # ),
+                                # html.Div(id="fetch-output"),
+dcc.Download(id="download-file")
+                            ],
+                            md=12,
+                            lg=6,
+                        ),
+# dcc.Download(id="download-file")
 
+                    ]
+                ),
+            ]
+        ),
+###########
  html.Div(
     [
 # dbc.Button("Search & Download", id="fetch-btn", n_clicks=0),
@@ -107,29 +137,18 @@ dmc.LoadingOverlay(
 
 ),
 
-
-                                # html.Button(
-                                #     "Search", id="fetch-btn", n_clicks=0
-                                # ),
-                                # html.Div(id="fetch-output"),
-dcc.Download(id="download-file")
-                            ],
-                            md=12,
-                            lg=6,
-                        ),
-# dcc.Download(id="download-file")
-
-                    ]
-                ),
-            ]
-        ),
-
+        ##########33
 
 
     ]
 )
-chromedriver_path="/home/bilgi/Desktop/chromedriver"
-d_path='/home/bilgi/Downloads/'
+SELENIUM_CMD_EXECUTOR = "http://selenium:4444/wd/hub"
+# SELENIUM_CMD_EXECUTOR = "http://selenium:4444/wd/hub"
+# chromedriver_path="/home/bilgi/Desktop/chromedriver"
+# CHROMEDRIVER_PATH="/home/bilgi/Desktop/chromedriver"
+# CHROMEDRIVER_PATH ="/usr/local/bin/chromedriver"
+# d_path='/home/bilgi/Downloads/'
+d_path='file:///home/seluser/Downloads'
 download_name = ""
 file_path=""
 zip_list=[]
@@ -156,7 +175,8 @@ zip_list=[]
 #     else:
 #         print("ZIP file not created")
 def create_zip(path,list):
-    zname='/home/bilgi/Downloads/Zipped_sav_files.zip'
+    # zname='/home/bilgi/Downloads/Zipped_sav_files.zip'
+    zname = 'file:///home/seluser/Downloads/Zipped_sav_files.zip'
     for x in list:
 
         with ZipFile(zname,'a') as zip_object:
@@ -215,24 +235,27 @@ def create_zip(path,list):
 #         return dcc.send_file(zname)
 #
 
-def update_graph(n_click,mail,pswrd,kword):
-    zname = '/home/bilgi/Downloads/Zipped_sav_files.zip'
+def update_graph(n_clicks,mail,pswrd,kword):
+    # zname = '/home/bilgi/Downloads/Zipped_sav_files.zip'
+    zname='file:///home/seluser/Downloads/Zipped_sav_files.zip'
     global file_path
     global download_name
     global zip_list
-    if n_click is None:
+    if n_clicks is None:
         raise dash.exceptions.PreventUpdate
     run_func(mail,pswrd,kword)
 
     print("_____lllll____")
     print(file_path)
-    create_zip('/home/bilgi/Downloads',zip_list)
+    # create_zip('/home/bilgi/Downloads',zip_list)
+    # create_zip('file:///home/seluser/Downloads',zip_list)  #zip yüzünden iptal edildi.
     # return dict(content=response.content, filename=fn)
 
 
 
     time.sleep(3)
-    return dcc.send_file(path='/home/bilgi/Downloads/Zipped_sav_files.zip',filename="Zipped_sav_files.zip")
+    # return dcc.send_file(path='/home/bilgi/Downloads/Zipped_sav_files.zip', filename="Zipped_sav_files.zip")
+    return dcc.send_file(path='file:///home/seluser/Downloads/Zipped_sav_files.zip',filename="Zipped_sav_files.zip")
 
 
     # bytes_io = io.BytesIO()
@@ -275,7 +298,40 @@ def run_func(mailr,pswrdr,kwordr):
         email = '//*[@id="username"]'
         password = '//*[@id="password"]'
         login_button = '//*[@id="kc-login"]'
-        driver = webdriver.Chrome(chromedriver_path)
+
+        # options = ChromeOptions()
+        # driver = Remote(command_executor=SELENIUM_CMD_EXECUTOR, options=options)
+        # driver.implicitly_wait(5)
+        #
+
+        # chrome_options = Options()
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--disable-dev-shm-usage")
+        # chrome_options.add_argument("--disable-gpu")  # This is important for some versions of Chrome
+        # chrome_options.add_argument("--remote-debugging-port=9222")  # This is recommended
+        #
+        # # Set path to Chrome binary
+        # chrome_options.binary_location = "/opt/chrome/chrome-linux64/chrome"
+        #
+        # # Set path to ChromeDriver
+        # chrome_service = ChromeService(executable_path="/opt/chromedriver/chromedriver-linux64/chromedriver")
+        #
+        # # Set up driver
+        # driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+
+
+        # driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH)
+        # driver = webdriver.Remote(command_executor='http://localhost:4444/wd/hub',
+        #                           desired_capabilities=DesiredCapabilities.CHROME)
+
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {'download.default_directory': '/home/seluser/Downloads'}
+        chrome_options.add_experimental_option('prefs', prefs)
+        #####  *************************************************
+        # options = ChromeOptions()
+        driver = Remote(command_executor=SELENIUM_CMD_EXECUTOR, options=chrome_options)
+        ###### *************************************************
         driver.get(url)
         wait = WebDriverWait(driver, 10)
         driver.maximize_window()
@@ -288,6 +344,7 @@ def run_func(mailr,pswrdr,kwordr):
         el.send_keys(Keys.ENTER)
         time.sleep(4)
         print("sssssssssssss")
+
         try:
             db_path = '//*[@id="sidebar"]/div/div[1]/a'
             chs = '//*[@id="{}_dataset_popup"]/span[2]/select/option[5]'.format(search)
@@ -336,19 +393,23 @@ def run_func(mailr,pswrdr,kwordr):
             print(sav_link)
             print("=====")
             print("sav")
-            print(download_name)
+            print(download_name) #'za7619_0.sav' asdfşalsd
+            print(d_path)
+            print("*-*-**-**-*-*- path *0******--*-*")
+            time.sleep(60)
+            ##################   check algorithm ###################3
             counter = 0
-            while True:
-                if counter > 120:
-                    break
-                print("döngüde devam ediyor.")
-                file_path = '{}{}'.format(d_path, download_name)
-                if is_file_downloaded(file_path, 3):
-                    print("{} completed".format(search))
-                    break
-                else:
-                    pass
-                counter += 1
+            # while True:
+            #     if counter > 120:
+            #         break
+            #     print("döngüde devam ediyor.")
+            #     file_path = '{}{}'.format(d_path, download_name)
+            #     if is_file_downloaded(file_path, 3):
+            #         print("{} completed".format(search))
+            #         break
+            #     else:
+            #         pass
+            #     counter += 1
 
             ###########============================================================
             # time.sleep(download_bekleme_suresi)
@@ -391,3 +452,9 @@ def run_func(mailr,pswrdr,kwordr):
 #
 #     ],
 # )
+#
+#
+# from selenium import webdriver
+# from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+# driver = webdriver.Remote( command_executor='http://localhost:4444/wd/hub', desired_capabilities=DesiredCapabilities.CHROME)
+# driver.get("http://www.example.com") # ... your testing actions ... driver.quit()
