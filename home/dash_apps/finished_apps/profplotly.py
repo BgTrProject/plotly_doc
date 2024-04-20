@@ -68,7 +68,7 @@ html.Br(),
                                     id="fetch-input-email",
                                     type="text",
                                     placeholder="email : i.e. xyz@xyz.com",
-                                   
+                                    value="asuerdem@bilgi.edu.tr"
                                 ),
                                 html.Br(),
 html.Br(),
@@ -76,7 +76,7 @@ html.Br(),
                                     id="fetch-input-password",
                                     type="text",
                                     placeholder="password : i.e. qwerty123",
-                                    
+                                    value="Deneme1234!"
                                 ),
                                 html.Br(),
 html.Br(),
